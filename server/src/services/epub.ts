@@ -1,9 +1,45 @@
-import EPub from "epub2";
+import { EPub } from "epub2/lib/epub.js";
 
 export interface Chapter {
   id: string;
   title: string;
   content: string;
+}
+
+export function parseEpub(filePath: string): Promise<Chapter[]> {
+  return new Promise((resolve, reject) => {
+    const epub = (EPub as any).create(filePath);
+
+    epub.on("end", async () => {
+      const chapters: Chapter[] = [];
+
+      for (const item of epub.flow) {
+        if (!item.id) continue;
+
+        try {
+          const content = await new Promise<string>((res, rej) => {
+            epub.getChapterRaw(item.id, (err, text) => {
+              if (err) rej(err);
+              else res(text);
+            });
+          });
+
+          chapters.push({
+            id: item.id,
+            title: item.title ?? "Untitled",
+            content: stripHtml(content),
+          });
+        } catch {
+          // skip broken chapters
+        }
+      }
+
+      resolve(chapters);
+    });
+
+    epub.on("error", reject);
+    epub.parse();
+  });
 }
 
 export interface Chunk {
@@ -14,33 +50,9 @@ export interface Chunk {
   index: number;
 }
 
-export async function parseEpub(filePath: string): Promise<Chapter[]> {
-  const epub = await (EPub as any).createAsync(filePath);
-  const chapters: Chapter[] = [];
-
-  for (const chapter of epub.flow) {
-    if (!chapter.id) continue;
-
-    const content = await epub.getChapterRawAsync(chapter.id);
-    chapters.push({
-      id: chapter.id,
-      title: chapter.title ?? "Untitled",
-      content: stripHtml(content),
-    });
-  }
-
-  return chapters;
-}
-
-function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 export function chunkChapters(chapters: Chapter[], chunkSize = 500): Chunk[] {
   const chunks: Chunk[] = [];
+
   for (const chapter of chapters) {
     const words = chapter.content.split(" ");
     let index = 0;
@@ -57,5 +69,13 @@ export function chunkChapters(chapters: Chapter[], chunkSize = 500): Chunk[] {
       index++;
     }
   }
+
   return chunks;
+}
+
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }

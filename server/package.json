@@ -20,8 +20,10 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "epub2": "^3.0.2",
     "express": "^5.2.1",
-    "openai": "^6.37.0"
+    "openai": "^6.37.0",
+    "vectra": "^0.14.0"
   }
 }
