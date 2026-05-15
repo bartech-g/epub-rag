@@ -18,7 +18,7 @@ export function parseEpub(filePath: string): Promise<Chapter[]> {
 
         try {
           const content = await new Promise<string>((res, rej) => {
-            epub.getChapterRaw(item.id, (err, text) => {
+            epub.getChapterRaw(item.id, (err: string, text: string) => {
               if (err) rej(err);
               else res(text);
             });

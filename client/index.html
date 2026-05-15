@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <title>EPUB RAG Search</title>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>📚 EPUB Search</h1>
+        <p>Ask anything about your book</p>
+      </header>
+
+      <main>
+        <form id="search-form">
+          <select id="book-select">
+            <option value="">Select a book...</option>
+            <option value="TotalTypescript">Total TypeScript</option>
+          </select>
+
+          <div class="input-row">
+            <input
+              id="query"
+              type="text"
+              placeholder="What are generics in TypeScript?"
+              autocomplete="off"
+            />
+            <button id="search-btn" type="submit">Search</button>
+          </div>
+        </form>
+
+        <div id="spinner" style="display: none">Searching...</div>
+        <div id="result"></div>
+      </main>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
